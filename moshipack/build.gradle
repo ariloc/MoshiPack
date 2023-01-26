@@ -1,16 +1,16 @@
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "com.squareup.moshi:moshi:$moshi_version"
-    compile "com.squareup.moshi:moshi-kotlin:$moshi_version"
-    testCompile "junit:junit:4.12"
-    testCompile "org.msgpack:msgpack-core:0.8.14"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "com.squareup.moshi:moshi:$moshi_version"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.msgpack:msgpack-core:0.8.14"
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.6"
+    kotlinOptions.jvmTarget = "18"
 }
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.6"
+    kotlinOptions.jvmTarget = "18"
 }
 
 test {
@@ -19,7 +19,7 @@ test {
     }
 }
 
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 task javadocJar(type: Jar) {

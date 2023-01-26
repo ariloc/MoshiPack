@@ -5,6 +5,7 @@ import com.squareup.moshi.MsgpackReader
 import com.sun.xml.internal.ws.org.objectweb.asm.ClassAdapter
 import okio.Buffer
 import okio.ByteString
+import okio.ByteString.Companion.decodeHex
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.hasItems
 import org.junit.Assert.assertEquals
@@ -22,7 +23,7 @@ class TestMessagePackReader {
         // Expect fix map 81 with size of 1
         // Then fix string a7 with size of 7 bytes ( topping ) 74 6f 70 70 69 6e 67
         // Then fix string a9 with size of 9 bytes ( pepperoni" ) 70 65 70 70 65 72 6f 6e 69
-        buffer.write(ByteString.decodeHex("81a7746f7070696e67a97065707065726f6e69"))
+        buffer.write("81a7746f7070696e67a97065707065726f6e69".decodeHex())
         val pizza = moshi.adapter(Pizza::class.java).fromJson(MsgpackReader(buffer))
 
         assertEquals(pizza?.topping, "pepperoni")
@@ -34,7 +35,7 @@ class TestMessagePackReader {
         val pizzabytes = "81a7746f7070696e67a97065707065726f6e69" // Not bagel bytes?
 
         val buffer = Buffer()
-        buffer.write(ByteString.decodeHex("93$pizzabytes$pizzabytes$pizzabytes"))
+        buffer.write("93$pizzabytes$pizzabytes$pizzabytes".decodeHex())
 
         val pizzas: List<Pizza> = MoshiPack.unpack(buffer)
 
@@ -60,7 +61,7 @@ class TestMessagePackReader {
         // 00 - integer 0
 
         val buffer = Buffer()
-        buffer.write(ByteString.decodeHex("82a7636f6d70616374c3a6736368656d6100"))
+        buffer.write("82a7636f6d70616374c3a6736368656d6100".decodeHex())
 
         val unpacked: Map<Any, Any> = MoshiPack.unpack(buffer)
 
@@ -83,7 +84,7 @@ class TestMessagePackReader {
         // 00 - integer 0
 
         val buffer = Buffer()
-        buffer.write(ByteString.decodeHex("82a7636f6d70616374c3a6736368656d6100"))
+        buffer.write("82a7636f6d70616374c3a6736368656d6100".decodeHex())
 
         val unpacked: ThePlug = MoshiPack.unpack(buffer)
 

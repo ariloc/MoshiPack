@@ -1,7 +1,9 @@
+
 package com.squareup.moshi
 
 import com.squareup.moshi.JsonScope.EMPTY_DOCUMENT
 import com.squareup.moshi.JsonScope.NONEMPTY_OBJECT
+import okio.Buffer
 import okio.BufferedSource
 import java.io.IOException
 
@@ -31,6 +33,14 @@ class MsgpackReader(private val source: BufferedSource) : JsonReader() {
 
     init {
         pushScope(EMPTY_DOCUMENT)
+    }
+
+    constructor(copyFrom: MsgpackReader) : this(copyFrom.source) {
+        promotedNameToValue = copyFrom.promotedNameToValue
+        peekedString = copyFrom.peekedString
+        pathSize = copyFrom.pathSize
+        currentTag = copyFrom.currentTag
+        peeked = copyFrom.peeked
     }
 
     override fun beginArray() {
@@ -94,6 +104,13 @@ class MsgpackReader(private val source: BufferedSource) : JsonReader() {
     override fun nextLong(): Long = readNumber().toLong()
 
     override fun nextInt(): Int = readNumber().toInt()
+
+    override fun nextSource(): BufferedSource {
+        val value = readJsonValue()
+        val result = Buffer()
+        JsonWriter.of(result).use { jsonWriter -> jsonWriter.jsonValue(value) }
+        return result
+    }
 
     private fun readNumber(): Number {
         val p = peeked
@@ -187,6 +204,16 @@ class MsgpackReader(private val source: BufferedSource) : JsonReader() {
         }
 
         return result
+    }
+
+    override fun skipName() {
+        try { nextName() }
+        catch (e: JsonDataException) {
+            if (failOnUnknown) throw e
+        }
+
+        peeked = PEEKED_NONE
+        pathNames[stackSize - 1] = null
     }
 
     /**
@@ -283,7 +310,13 @@ class MsgpackReader(private val source: BufferedSource) : JsonReader() {
         }
     }
 
+    override fun peekJson() : JsonReader = MsgpackReader(this)
+
     override fun skipValue() {
+        if (failOnUnknown) {
+            throw JsonDataException("Cannot skip unexpected ${peek()} at $path")
+        }
+
         if (peeked == PEEKED_NONE) doPeek()
         when (peek()) {
             JsonReader.Token.BEGIN_ARRAY -> skipArray()
@@ -351,7 +384,7 @@ class MsgpackReader(private val source: BufferedSource) : JsonReader() {
             throw IllegalStateException("JsonReader is closed")
         }
 
-        if (buffer.size() == 0L) {
+        if (buffer.size == 0L) {
             peeked = PEEKED_EOF
             return peeked
         }

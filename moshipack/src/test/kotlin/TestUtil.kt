@@ -1,8 +1,10 @@
 import okio.Buffer
 import okio.ByteString
+import okio.ByteString.Companion.decodeHex
+import okio.ByteString.Companion.encodeUtf8
 
 operator fun Buffer.plusAssign(string: String) {
-    this.write(okio.ByteString.decodeHex(string))
+    this.write(string.decodeHex())
 }
 
-val String.hex: String get() = ByteString.encodeUtf8(this).hex()
+val String.hex: String get() = this.encodeUtf8().hex()

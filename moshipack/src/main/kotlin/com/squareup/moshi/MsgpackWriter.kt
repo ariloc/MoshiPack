@@ -42,6 +42,10 @@ class MsgpackWriter(private val sink: BufferedSink) : JsonWriter() {
         return this
     }
 
+    override fun valueSink(): BufferedSink {
+        TODO("Not yet implemented")
+    }
+
     override fun value(value: String?): JsonWriter = when {
         value == null -> nullValue()
         promoteValueToName -> name(value)
