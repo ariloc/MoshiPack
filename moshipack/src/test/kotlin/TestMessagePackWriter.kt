@@ -3,6 +3,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.MsgpackFormat
 import com.squareup.moshi.MsgpackIntByte
 import com.squareup.moshi.MsgpackWriter
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okio.Buffer
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -13,7 +14,9 @@ class TestMessagePackWriter {
 
     @Test
     fun seeIfThisThingWorksOrNot() {
-        val moshi = Moshi.Builder().build()
+        val moshi = Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
         val buffer = Buffer()
         moshi.adapter(Pizza::class.java).toJson(MsgpackWriter(buffer), Pizza())
 
@@ -29,7 +32,9 @@ class TestMessagePackWriter {
 
     @Test
     fun okOneMoreTestThanYouGottaGotoSleep() {
-        val moshi = Moshi.Builder().build()
+        val moshi = Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
         val buffer = Buffer()
         moshi.adapter(PizzaPlus::class.java).toJson(MsgpackWriter(buffer), PizzaPlus())
 
@@ -94,10 +99,14 @@ class TestMessagePackWriter {
         assertEquals("82a3${"one".hex}a141a5${"three".hex}a143", buffer.readByteString().hex())
     }
 
+    /// https://github.com/square/moshi/issues/370
     @Test
     fun transientsAreNotWrittenMoshiNoKotlinSupport() {
         val transients = Transients2("A", "B", "C")
-        val buffer = MoshiPack(moshi = Moshi.Builder().build()).pack(transients)
+        val buffer = MoshiPack(moshi = Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
+        ).pack(transients)
 
         assertEquals("82a3${"one".hex}a141a5${"three".hex}a143", buffer.readByteString().hex())
     }

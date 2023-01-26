@@ -1,6 +1,7 @@
 package com.daveanthonythomas.moshipack
 
 import com.squareup.moshi.*
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okio.Buffer
 import okio.BufferedSource
 import java.lang.reflect.Type
@@ -52,7 +53,7 @@ class MoshiPack(private var builder: Moshi.Builder.() -> kotlin.Unit = {},
                 unpack(Buffer().apply { write(bytes) }, builder)
 
         inline fun moshi(crossinline builder: Moshi.Builder.() -> Unit = {}) =
-                Moshi.Builder().apply(builder).add(KotlinJsonAdapterFactory()).build()
+                Moshi.Builder().apply(builder).addLast(KotlinJsonAdapterFactory()).build()
 
         fun msgpackToJson(bytes: ByteArray,
                           writerOptions: MsgpackWriterOptions = MsgpackWriterOptions()): String =

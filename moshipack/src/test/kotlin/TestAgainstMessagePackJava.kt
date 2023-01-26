@@ -1,4 +1,5 @@
 import com.daveanthonythomas.moshipack.MoshiPack
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.MsgpackFormat
 import okio.Buffer
 import org.junit.Assert.assertEquals
@@ -209,6 +210,8 @@ class TestAgainstMessagePackJava {
         packer.packString("double")
         packer.packDouble(202.20223432432422)
 
+        // TODO: Fix "Cannot serialize local class or object expression"
+        @JsonClass(generateAdapter = true)
         data class TestClass(var double: Double)
 
         val result = MoshiPack.unpack<TestClass>(packer.toByteArray())

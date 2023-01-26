@@ -9,20 +9,19 @@ class FormatInterchange(val formatIn: Format, val formatOut: Format) {
 
     private fun transform(reader: JsonReader, writer: JsonWriter) {
         doValue(reader, writer)
+        writer.close()
+        reader.close()
     }
 
     private fun doValue(reader: JsonReader, writer: JsonWriter) {
         when(reader.peek()) {
             JsonReader.Token.BEGIN_ARRAY -> doArray(reader, writer)
-            JsonReader.Token.END_ARRAY -> endArray(reader, writer)
             JsonReader.Token.BEGIN_OBJECT -> doObject(reader, writer)
-            JsonReader.Token.END_OBJECT -> endObject(reader, writer)
-            JsonReader.Token.NAME -> writer.value(reader.nextName())
             JsonReader.Token.STRING -> writer.value(reader.nextString())
             JsonReader.Token.NUMBER -> writer.value(reader.nextDouble())
             JsonReader.Token.BOOLEAN -> writer.value(reader.nextBoolean())
-            JsonReader.Token.END_DOCUMENT -> endDocument(reader, writer)
             JsonReader.Token.NULL -> writer.nullValue().also { reader.nextNull<Any>() }
+            else -> throw IllegalStateException("MessagePack shouldn't need this token")
         }
     }
 
@@ -33,9 +32,6 @@ class FormatInterchange(val formatIn: Format, val formatOut: Format) {
             writer.name(reader.nextName())
             doValue(reader, writer)
         }
-    }
-
-    private fun endObject(reader: JsonReader, writer: JsonWriter) {
         reader.endObject()
         writer.endObject()
     }
@@ -51,11 +47,6 @@ class FormatInterchange(val formatIn: Format, val formatOut: Format) {
     private fun endArray(reader: JsonReader, writer: JsonWriter) {
         reader.endArray()
         writer.endArray()
-    }
-
-    private fun endDocument(reader: JsonReader, writer: JsonWriter) {
-        writer.close()
-        reader.close()
     }
 
     fun transform(source: BufferedSource) = Buffer().also {

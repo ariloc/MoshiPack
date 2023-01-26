@@ -1,12 +1,9 @@
 import com.daveanthonythomas.moshipack.MoshiPack
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.MsgpackFormat
 import com.squareup.moshi.MsgpackReader
-import com.sun.xml.internal.ws.org.objectweb.asm.ClassAdapter
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okio.Buffer
-import okio.ByteString
 import okio.ByteString.Companion.decodeHex
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.hasItems
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThat
@@ -16,7 +13,9 @@ class TestMessagePackReader {
 
     @Test
     fun doesMyReaderEvenWorkYet() {
-        val moshi = Moshi.Builder().build()
+        val moshi = Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
         val buffer = Buffer()
 
         // First test

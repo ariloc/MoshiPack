@@ -28,7 +28,7 @@ class MsgpackReader(private val source: BufferedSource) : JsonReader() {
     private var peekedString: String = ""
     var pathSize = LongArray(32) { 0 }
     var currentTag: Byte = 0
-    private val buffer = source.buffer()
+    private val buffer = source.buffer
     var peeked = PEEKED_NONE
 
     init {
@@ -365,6 +365,7 @@ class MsgpackReader(private val source: BufferedSource) : JsonReader() {
             PEEKED_TRUE, PEEKED_FALSE -> Token.BOOLEAN
             PEEKED_NULL -> Token.NULL
             PEEKED_DOUBLE, PEEKED_LONG -> Token.NUMBER
+            PEEKED_EOF -> Token.END_DOCUMENT
             else -> throw AssertionError()
         }
     }
